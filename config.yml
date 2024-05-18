@@ -25,4 +25,4 @@ dataloader:
   channels: 3
   image_size: 256
   batch_size: 1
-  split_size: 0.80
+  split_size: 0.20
