@@ -1,6 +1,6 @@
 import os
+import torch
 import unittest
-
 from src.utils import config, load, validate_path
 from src.dataloader import Loader
 
@@ -46,6 +46,12 @@ class UnitTest(unittest.TestCase):
     def test_test_channels(self):
         X, y = next(iter(self.test_dataloader))
         self.assertEqual(X.size(1), 3)
+
+    def test_train_dataloader_type(self):
+        self.assertEqual(type(self.train_dataloader), torch.utils.data.DataLoader)
+
+    def test_test_dataloader_type(self):
+        self.assertEqual(type(self.test_dataloader), torch.utils.data.DataLoader)
 
 
 if __name__ == "__main__":
