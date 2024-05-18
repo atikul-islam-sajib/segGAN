@@ -5,7 +5,7 @@
 
 
 # dataloader:
-#   image_path: /Users/shahmuhammadraditrahman/Desktop/datasets.zip
+#   image_path: /Users/shahmuhammadraditrahman/Desktop/segGAN/data/raw/datasets.zip
 #   channels: 3
 #   image_size: 256
 #   batch_size: 1
