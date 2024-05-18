@@ -1,5 +1,6 @@
 import os
 import cv2
+import torch
 import zipfile
 import argparse
 import pandas as pd
@@ -138,7 +139,11 @@ class Loader:
             filename=os.path.join(processed_path, "test_dataloader.pkl")
         )
 
-        image_X, image_Y = next(iter(test_dataloader))
+        if isinstance(test_dataloader, torch.utils.data.DataLoader):
+            image_X, image_Y = next(iter(test_dataloader))
+
+        else:
+            raise ValueError("test_dataloader must be of type DataLoader".capitalize())
 
         plt.figure(figsize=(20, 10))
 
@@ -174,15 +179,27 @@ class Loader:
             filename=os.path.join(processed_path, "test_dataloader.pkl")
         )
 
-        pd.DataFrame(
-            {
-                "train_image(Total)": str(sum(X.size(0) for X, _ in train_dataloader)),
-                "test_image(Total)": str(sum(X.size(0) for X, _ in test_dataloader)),
-                "train_image(Batch)": str(train_dataloader.batch_size),
-                "test_image(Batch)": str(test_dataloader.batch_size),
-            },
-            index=["Quantity"],
-        ).T.to_csv(os.path.join(files_path, "dataset_details.csv"))
+        if isinstance(train_dataloader, torch.utils.data.DataLoader) and isinstance(
+            test_dataloader, torch.utils.data.DataLoader
+        ):
+            pd.DataFrame(
+                {
+                    "train_image(Total)": str(
+                        sum(X.size(0) for X, _ in train_dataloader)
+                    ),
+                    "test_image(Total)": str(
+                        sum(X.size(0) for X, _ in test_dataloader)
+                    ),
+                    "train_image(Batch)": str(train_dataloader.batch_size),
+                    "test_image(Batch)": str(test_dataloader.batch_size),
+                },
+                index=["Quantity"],
+            ).T.to_csv(os.path.join(files_path, "dataset_details.csv"))
+
+        else:
+            raise ValueError(
+                "train_dataloader and test_dataloader must be of type DataLoader".capitalize()
+            )
 
 
 if __name__ == "__main__":
