@@ -1,5 +1,5 @@
 ,Quantity
-train_image(Total),8
-test_image(Total),2
+train_image(Total),2
+test_image(Total),8
 train_image(Batch),1
 test_image(Batch),8
