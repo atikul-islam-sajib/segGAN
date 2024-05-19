@@ -4,7 +4,6 @@ import argparse
 import torch.nn as nn
 from torchsummary import summary
 from torchview import draw_graph
-from collections import OrderedDict
 
 from .utils import config, validate_path
 from .discriminator_block import DiscriminatorBlock
