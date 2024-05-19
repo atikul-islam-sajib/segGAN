@@ -27,17 +27,20 @@ def helpers(**kwargs):
     lr = kwargs["lr"]
     adam = kwargs["adam"]
     SGD = kwargs["SGD"]
+    beta1 = kwargs["beta1"]
+    beta2 = kwargs["beta2"]
+    momentum = kwargs["momentum"]
 
     netG = Generator(in_channels=channels)
     netD = Discriminator(in_channels=channels)
 
     if adam:
-        optimizerG = optim.Adam(params=netG.parameters(), lr=lr, betas=(0.5, 0.999))
-        optimizerD = optim.Adam(params=netD.parameters(), lr=lr, betas=(0.5, 0.999))
+        optimizerG = optim.Adam(params=netG.parameters(), lr=lr, betas=(beta1, beta2))
+        optimizerD = optim.Adam(params=netD.parameters(), lr=lr, betas=(beta1, beta2))
 
     elif SGD:
-        optimizerG = optim.SGD(params=netG.parameters(), lr=lr, momentum=0.9)
-        optimizerD = optim.SGD(params=netD.parameters(), lr=lr, momentum=0.9)
+        optimizerG = optim.SGD(params=netG.parameters(), lr=lr, momentum=momentum)
+        optimizerD = optim.SGD(params=netD.parameters(), lr=lr, momentum=momentum)
 
     l1loss = L1Loss(reduction="mean")
     dataloader = load_dataloader()
@@ -54,7 +57,19 @@ def helpers(**kwargs):
 
 
 if __name__ == "__main__":
-    init = helpers(channels=3, lr=0.0002, adam=True, SGD=False)
+    beta1 = config()["model"]["beta1"]
+    beta2 = config()["model"]["beta2"]
+    momentum = config()["model"]["momentum"]
+
+    init = helpers(
+        channels=3,
+        lr=0.0002,
+        adam=True,
+        SGD=False,
+        beta1=beta1,
+        beta2=beta2,
+        momentum=momentum,
+    )
 
     print(init["netG"])
     print(init["netD"])
