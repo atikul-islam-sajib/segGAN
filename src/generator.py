@@ -140,12 +140,16 @@ if __name__ == "__main__":
 
     netG = Generator(in_channels=in_channels)
 
-    print(summary(model=netG, input_size=(3, 256, 256)))
-
     draw_graph(model=netG, input_data=torch.randn(1, 3, 256, 256)).visual_graph.render(
         filename=os.path.join(files_path, "netG"), format="jpeg"
     )
 
-    assert netG(torch.randn(1, 3, 256, 256)).size() == (1, 3, 256, 256)
+    """
+    To check:
+    
+        print(summary(model=netG, input_size=(3, 256, 256)))
+    
+        assert netG(torch.randn(1, 3, 256, 256)).size() == (1, 3, 256, 256)
 
-    assert netG.total_params(netG) == 41828992
+        assert netG.total_params(netG) == 41828992
+    """

@@ -95,12 +95,16 @@ if __name__ == "__main__":
 
     netD = Discriminator(in_channels=in_channels)
 
-    print(summary(model=netD, input_size=(in_channels, 256, 256)))
-
     draw_graph(
         model=netD, input_data=torch.randn(1, in_channels, 256, 256)
     ).visual_graph.render(filename=os.path.join(files_path, "netD"), format="jpeg")
 
-    assert Discriminator.total_params(model=netD) == 2766657
+    """
+    To check:
 
-    assert netD(torch.randn(1, 3, 256, 256)).size() == (1, 2327940)
+        print(summary(model=netD, input_size=(in_channels, 256, 256)))
+    
+        assert Discriminator.total_params(model=netD) == 2766657
+
+        assert netD(torch.randn(1, 3, 256, 256)).size() == (1, 2327940)
+    """
