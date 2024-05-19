@@ -1,11 +1,13 @@
 import os
 import torch
 import unittest
+from torch.utils.data import DataLoader
 
 from src.utils import config, load, validate_path
 from src.dataloader import Loader
 from src.generator import Generator
 from src.discriminator import Discriminator
+from src.helper import helpers
 
 
 class UnitTest(unittest.TestCase):
@@ -25,6 +27,7 @@ class UnitTest(unittest.TestCase):
 
         self.netG = Generator(in_channels=3)
         self.netD = Discriminator(in_channels=3)
+        self.init = helpers(channels=3, lr=0.0002, adam=True, SGD=False)
 
     def test_train_data_quantity(self):
         self.assertEqual(sum(X.size(0) for X, _ in self.train_dataloader), 8)
@@ -74,6 +77,29 @@ class UnitTest(unittest.TestCase):
 
     def test_netD_total_params(self):
         self.assertEqual(sum(p.numel() for p in self.netD.parameters()), 2766657)
+
+    def test_optimiizerG(self):
+        self.assertIsInstance(self.init["optimizerG"], torch.optim.Adam)
+
+    def test_optimizerD(self):
+        self.assertIsInstance(self.init["optimizerD"], torch.optim.Adam)
+
+    def test_loss_seGAN(self):
+        self.assertNotIsInstance(self.init["l1loss"], torch.nn.L1Loss)
+
+    def test_netG_type(self):
+        self.assertIsInstance(self.init["netG"], Generator)
+
+    def test_netD_type(self):
+        self.assertIsInstance(self.init["netD"], Discriminator)
+
+    def test_train_dataloader(self):
+        self.assertIsInstance(
+            self.init["train_dataloader"], torch.utils.data.DataLoader
+        )
+
+    def test_test_dataloader(self):
+        self.assertIsInstance(self.init["test_dataloader"], torch.utils.data.DataLoader)
 
 
 if __name__ == "__main__":
