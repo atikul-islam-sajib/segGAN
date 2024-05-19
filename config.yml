@@ -1,30 +1,7 @@
-# path:
-#   raw_path: ../../data/raw/
-#   processed_path: ../../data/processed/
-#   files_path: ../../research/files/
-
-
-# dataloader:
-#   image_path: /Users/shahmuhammadraditrahman/Desktop/segGAN/data/raw/datasets.zip
-#   channels: 3
-#   image_size: 256
-#   batch_size: 1
-#   split_size: 0.20
-
-
-# netG:
-#   in_channels: 3
-
-# netD:
-#   in_channels: 3
-
-
-### SRC ###
-
 path:
-  raw_path: ./data/raw/
-  processed_path: ./data/processed/
-  files_path: ./research/files/
+  raw_path: ../../data/raw/
+  processed_path: ../../data/processed/
+  files_path: ../../research/files/
 
 
 dataloader:
@@ -40,4 +17,27 @@ netG:
 
 netD:
   in_channels: 3
+
+
+### SRC ###
+
+# path:
+#   raw_path: ./data/raw/
+#   processed_path: ./data/processed/
+#   files_path: ./research/files/
+
+
+# dataloader:
+#   image_path: /Users/shahmuhammadraditrahman/Desktop/segGAN/data/raw/datasets.zip
+#   channels: 3
+#   image_size: 256
+#   batch_size: 1
+#   split_size: 0.20
+
+
+# netG:
+#   in_channels: 3
+
+# netD:
+#   in_channels: 3
 
