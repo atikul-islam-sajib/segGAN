@@ -4,6 +4,8 @@ import unittest
 
 from src.utils import config, load, validate_path
 from src.dataloader import Loader
+from src.generator import Generator
+from src.discriminator import Discriminator
 
 
 class UnitTest(unittest.TestCase):
@@ -20,6 +22,8 @@ class UnitTest(unittest.TestCase):
         self.test_dataloader = load(
             filename=os.path.join(self.processed_path, "test_dataloader.pkl")
         )
+
+        self.netG = Generator(in_channels=3)
 
     def test_train_data_quantity(self):
         self.assertEqual(sum(X.size(0) for X, _ in self.train_dataloader), 8)
@@ -53,6 +57,14 @@ class UnitTest(unittest.TestCase):
 
     def test_test_dataloader_type(self):
         self.assertEqual(type(self.test_dataloader), torch.utils.data.DataLoader)
+
+    def test_netG_size(self):
+        self.assertEqual(
+            self.netG(torch.randn(1, 3, 256, 256)).size(), torch.Size([1, 3, 256, 256])
+        )
+
+    def test_netG_total_params(self):
+        self.assertEqual(sum(p.numel() for p in self.netG.parameters()), 41828992)
 
 
 if __name__ == "__main__":
