@@ -25,9 +25,19 @@ class UnitTest(unittest.TestCase):
             filename=os.path.join(self.processed_path, "test_dataloader.pkl")
         )
 
+        self.config_files = config()
+
         self.netG = Generator(in_channels=3)
         self.netD = Discriminator(in_channels=3)
-        self.init = helpers(channels=3, lr=0.0002, adam=True, SGD=False)
+        self.init = helpers(
+            channels=3,
+            lr=0.0002,
+            adam=True,
+            SGD=False,
+            beta1=self.config_files["model"]["beta1"],
+            beta2=self.config_files["model"]["beta2"],
+            momentum=self.config_files["model"]["momentum"],
+        )
 
     def test_train_data_quantity(self):
         self.assertEqual(sum(X.size(0) for X, _ in self.train_dataloader), 8)
