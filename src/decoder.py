@@ -30,7 +30,7 @@ class DecoderBlock(nn.Module):
             bias=False,
         )
         if self.last_layer:
-            layers["Tanh"] = nn.Tanh()
+            pass
         else:
             layers["ReLU"] = nn.ReLU(inplace=True)
             layers["batch_norm"] = nn.BatchNorm2d(num_features=self.out_channels)
