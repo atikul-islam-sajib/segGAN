@@ -51,3 +51,15 @@ def helpers(**kwargs):
         "train_dataloader": dataloader["train_dataloader"],
         "test_dataloader": dataloader["test_dataloader"],
     }
+
+
+if __name__ == "__main__":
+    init = helpers(channels=3, lr=0.0002, adam=True, SGD=False)
+
+    print(init["netG"])
+    print(init["netD"])
+    print(init["optimizerG"])
+    print(init["optimizerD"])
+    print(init["l1loss"])
+    print(init["train_dataloader"])
+    print(init["test_dataloader"])
