@@ -1,108 +1,107 @@
+import os
 import torch
 import argparse
 import torch.nn as nn
+from torchsummary import summary
+from torchview import draw_graph
 from collections import OrderedDict
 
+from .utils import config, validate_path
+from .discriminator_block import DiscriminatorBlock
 
-class DiscriminatorBlock(nn.Module):
-    def __init__(
-        self,
-        in_channels=3,
-        out_channels=64,
-        kernel_size=4,
-        stride_size=2,
-        padding_size=1,
-        last_layer=False,
-    ):
-        super(DiscriminatorBlock, self).__init__()
 
-        self.in_channels = in_channels
-        self.out_channels = out_channels
-        self.last_layer = last_layer
+class Discriminator(nn.Module):
+    def __init__(self, in_channels=3):
+        super(Discriminator, self).__init__()
 
-        self.kernel_size = kernel_size
-        self.stride_size = stride_size
-        self.padding_size = padding_size
+        self.in_channels = 3
+        self.out_channels = 64
 
-        self.discriminator_block = self.block()
+        layers = []
 
-    def block(self):
-        layers = OrderedDict()
+        for _ in range(3):
+            layers.append(
+                DiscriminatorBlock(
+                    in_channels=self.in_channels, out_channels=self.out_channels
+                )
+            )
 
-        layers["conv"] = nn.Conv2d(
-            in_channels=self.in_channels,
-            out_channels=self.out_channels,
-            kernel_size=self.kernel_size,
-            stride=self.stride_size,
-            padding=self.padding_size,
-        )
+            self.in_channels = self.out_channels
+            self.out_channels *= 2
 
-        if self.last_layer:
-            layers["tanh"] = nn.Tanh()
+        for idx in range(2):
+            layers.append(
+                DiscriminatorBlock(
+                    in_channels=self.in_channels,
+                    out_channels=1 if (idx == 1) else self.out_channels,
+                    stride_size=1,
+                    last_layer=(idx == 1),
+                )
+            )
+            self.in_channels = self.out_channels
+            self.out_channels *= 2
 
-        else:
-            layers["leaky_ReLU"] = nn.LeakyReLU(negative_slope=0.2, inplace=True)
-            layers["batch_norm"] = nn.BatchNorm2d(num_features=self.out_channels)
-
-        return nn.Sequential(layers)
+        self.model = nn.Sequential(*layers)
 
     def forward(self, x):
         if isinstance(x, torch.Tensor):
-            return self.discriminator_block(x)
+            x1 = self.model[0](x)
+            x2 = self.model[1](x1)
+            x3 = self.model[2](x2)
+            x4 = self.model[3](x3)
+            x5 = self.model[4](x4)
+
+            return torch.cat(
+                (
+                    x1.view(x1.size(0), -1),
+                    x2.view(x2.size(0), -1),
+                    x3.view(x3.size(0), -1),
+                    x4.view(x4.size(0), -1),
+                    x5.view(x5.size(0), -1),
+                ),
+                dim=1,
+            )
 
         else:
-            raise ValueError("Input should be a tensor".capitalize())
+            raise ValueError("X should be in the format of tenor".capitalize())
 
     @staticmethod
     def total_params(model):
-        if isinstance(model, torch.nn.modules.container.Sequential):
-            return sum(p.numel() for p in model.parameters() if p.requires_grad)
+        if isinstance(model, Discriminator):
+            return sum(
+                params.numel() for params in model.parameters() if params.requires_grad
+            )
+
         else:
-            raise ValueError("Model should be a Sequential model".capitalize())
+            raise ValueError(
+                "Model should be in the format of Discriminator".capitalize()
+            )
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Discriminator for seGAN".title())
+    parser = argparse.ArgumentParser(description="Discriminator code for seGAN".title())
     parser.add_argument(
         "--in_channels",
         type=int,
         default=3,
-        help="Number of input channels".capitalize(),
+        help="Define the channels of the image".capitalize(),
     )
-    parser.add_argument(
-        "--out_channels",
-        type=int,
-        default=64,
-        help="Number of output channels".capitalize(),
-    )
+
     args = parser.parse_args()
 
+    config_files = config()
+    files_path = validate_path(path=config_files["path"]["files_path"])
+
     in_channels = args.in_channels
-    out_channels = args.out_channels
 
-    layers = []
+    netD = Discriminator(in_channels=in_channels)
 
-    for _ in range(3):
-        layers.append(
-            DiscriminatorBlock(in_channels=in_channels, out_channels=out_channels)
-        )
+    print(summary(model=netD, input_size=(in_channels, 256, 256)))
 
-        in_channels = out_channels
-        out_channels *= 2
+    draw_graph(
+        model=netD, input_data=torch.randn(1, in_channels, 256, 256)
+    ).visual_graph.render(filename=os.path.join(files_path, "netD"), format="jpeg")
 
-    for idx in range(2):
-        layers.append(
-            DiscriminatorBlock(
-                in_channels=in_channels,
-                out_channels=1 if (idx == 1) else out_channels,
-                stride_size=1,
-                last_layer=(idx == 1),
-            )
-        )
-        in_channels = out_channels
-        out_channels *= 2
+    assert Discriminator.total_params(model=netD) == 2766657
 
-    model = nn.Sequential(*layers)
-
-    assert DiscriminatorBlock.total_params(model=model) == 2766657
-    assert model(torch.randn(1, 3, 256, 256)).size() == (1, 1, 30, 30)
+    assert netD(torch.randn(1, 3, 256, 256)).size() == (1, 2327940)
