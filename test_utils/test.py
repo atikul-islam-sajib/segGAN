@@ -24,6 +24,7 @@ class UnitTest(unittest.TestCase):
         )
 
         self.netG = Generator(in_channels=3)
+        self.netD = Discriminator(in_channels=3)
 
     def test_train_data_quantity(self):
         self.assertEqual(sum(X.size(0) for X, _ in self.train_dataloader), 8)
@@ -65,6 +66,14 @@ class UnitTest(unittest.TestCase):
 
     def test_netG_total_params(self):
         self.assertEqual(sum(p.numel() for p in self.netG.parameters()), 41828992)
+
+    def test_netD_size(self):
+        self.assertEqual(
+            self.netD(torch.randn(1, 3, 256, 256)).size(), torch.Size([1, 2327940])
+        )
+
+    def test_netD_total_params(self):
+        self.assertEqual(sum(p.numel() for p in self.netD.parameters()), 2766657)
 
 
 if __name__ == "__main__":
