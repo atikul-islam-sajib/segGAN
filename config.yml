@@ -26,3 +26,11 @@ dataloader:
   image_size: 256
   batch_size: 1
   split_size: 0.20
+
+
+netG:
+  in_channels: 3
+
+netD:
+  in_channels: 3
+
