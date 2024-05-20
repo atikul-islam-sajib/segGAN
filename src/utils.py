@@ -1,5 +1,6 @@
 import os
 import yaml
+import torch
 import joblib
 import traceback
 
@@ -39,3 +40,14 @@ def load(filename=None):
 
     else:
         raise PathException("{} Path does not exist".capitalize().format(filename))
+
+
+def device_init(device="cuda"):
+    if device == "mps":
+        return torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+
+    elif device == "cuda":
+        return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    else:
+        return torch.device("cpu")

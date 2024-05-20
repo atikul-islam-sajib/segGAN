@@ -12,6 +12,7 @@ class Trainer:
         epochs=100,
         adam=True,
         SGD=False,
+        device="cuda",
         beta1=0.5,
         beta2=0.999,
         momentum=0.90,
@@ -25,6 +26,7 @@ class Trainer:
         self.epochs = epochs
         self.adam = adam
         self.SGD = SGD
+        self.device = device
         self.beta1 = beta1
         self.beta2 = beta2
         self.momentum = momentum
