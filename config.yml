@@ -48,4 +48,6 @@ model:
   epochs: 200
   momentum: 0.5
   dice_smooth: 0.001
+  step_size: 10
+  gamma: 0.1
 
