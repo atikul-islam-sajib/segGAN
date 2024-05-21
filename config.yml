@@ -40,12 +40,6 @@ dataloader:
   split_size: 0.50
 
 
-netG:
-  in_channels: 3
-
-netD:
-  in_channels: 3
-
 model:
   beta1: 0.5
   beta2: 0.999
@@ -55,6 +49,13 @@ model:
   dice_smooth: 0.001
   step_size: 10
   gamma: 0.1
+  smooth: 0.001
   clamp_value: 0.01
   l1loss_value: 0.1
+  adam: True
+  SGD: False
+  lr_scheduler: False
+  weight_init: True
+  display: True
+  device: cuda
 
