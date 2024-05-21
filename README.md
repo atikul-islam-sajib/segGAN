@@ -2,7 +2,7 @@
 
 <img src="https://github.com/atikul-islam-sajib/Research-Assistant-Work-/blob/main/download%20(1).png">
 
-This project provides a complete framework for training and testing a Segmentation Generative Adversarial Network (SeGAN). It includes functionality for data preparation, model training, testing, and inference to enhance low-resolution images to image translation(seGAN)
+SeGAN, in the context of semantic segmentation, refers to a specific type of Generative Adversarial Network (GAN) designed to enhance the task of semantic segmentation. Semantic segmentation involves classifying each pixel in an image into a predefined category, such as identifying pixels belonging to cars, buildings, roads, etc.
 
 <img src="https://www.researchgate.net/publication/317378234/figure/fig4/AS:962701794762773@1606537402648/The-architecture-of-the-proposed-SegAN-with-segmentor-and-critic-networks-In-the.gif" alt="AC-GAN - Medical Image Dataset Generator: Generated Image with labels">
 
