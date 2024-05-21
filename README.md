@@ -68,14 +68,14 @@ This project is thoughtfully organized to support the development, training, and
 
 - **src/**
 
-  - Source code directory containing all custom modules, scripts, and utility functions for the U-Net model.
+  - Source code directory containing all custom modules, scripts, and utility functions for the seGAN model.
 
 - **unittest/**
   - Unit tests ensuring code reliability, correctness, and functionality across various project components.
 
 ### Dataset Organization for srgan
 
-The dataset is organized into three categories for SRGAN. Each category directly contains paired images and their corresponding lower resolution images and higher resolution, stored together to simplify the association between lower resolution and higher resolution images .
+The dataset is organized into three categories for seGAN. Each category directly contains paired images and their corresponding lower resolution images and higher resolution, stored together to simplify the association between lower resolution and higher resolution images .
 
 ## Directory Structure:
 
@@ -211,7 +211,7 @@ test.plot()
 
 
 ## Contributing
-Contributions to improve this implementation of SRGAN are welcome. Please follow the standard fork-branch-pull request workflow.
+Contributions to improve this implementation of seGAN are welcome. Please follow the standard fork-branch-pull request workflow.
 
 ## License
 Specify the license under which the project is made available (e.g., MIT License).
