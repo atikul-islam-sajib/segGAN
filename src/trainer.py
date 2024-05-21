@@ -3,6 +3,7 @@ import argparse
 import torch
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 from tqdm import tqdm
 from torch.optim.lr_scheduler import StepLR
 from torchvision.utils import save_image
@@ -300,7 +301,30 @@ class Trainer:
 
     @staticmethod
     def plot_history():
-        pass
+        metrics_path = config()["path"]["metrics_path"]
+        metrics_path = validate_path(path=metrics_path)
+
+        plt.figure(figsize=(20, 20))
+
+        history = load(filename=os.path.join(metrics_path, "history.pkl"))
+
+        for index, (title, loss) in enumerate(
+            [
+                ("netG_loss", history["netG_loss"]),
+                ("netD_loss", history["netD_loss"]),
+            ]
+        ):
+            plt.subplot(2 * 1, 2 * 2, 2 * index + (index + 1))
+
+            plt.plot(loss[0], label=title)
+            plt.title(f"{title}")
+            plt.xlabel("Epochs")
+            plt.ylabel("Loss")
+            plt.legend()
+
+        plt.tight_layout()
+        save_image(os.path.join(metrics_path, "model_history.jpeg"))
+        plt.show()
 
 
 if __name__ == "__main__":
@@ -383,3 +407,5 @@ if __name__ == "__main__":
     )
 
     trainer.train()
+
+    trainer.plot_history()
