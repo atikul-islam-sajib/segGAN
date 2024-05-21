@@ -328,7 +328,7 @@ class Trainer:
             plt.legend()
 
         plt.tight_layout()
-        save_image(os.path.join(metrics_path, "model_history.jpeg"))
+        plt.savefig(os.path.join(metrics_path, "model_history.png"))
         plt.show()
 
 

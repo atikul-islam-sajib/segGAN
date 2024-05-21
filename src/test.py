@@ -49,8 +49,11 @@ class TestModel:
             predict = self.netG(image.to(self.device))
 
             size = image.size(0)
-            num_row = size // 2
-            num_columns = size // num_row
+            if size == 1:
+                num_row, num_columns = 1, 1
+            else:
+                num_row = size // 2
+                num_columns = size // num_row
 
             for index, image in enumerate(predict):
                 plt.subplot(2 * num_row, 2 * num_columns, 2 * index + 1)

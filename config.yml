@@ -44,9 +44,9 @@ model:
   beta1: 0.5
   beta2: 0.999
   lr: 0.0002
-  epochs: 200
+  epochs: 20
   momentum: 0.5
-  dice_smooth: 0.001
+  smooth: 0.001
   step_size: 10
   gamma: 0.1
   smooth: 0.001
@@ -57,5 +57,5 @@ model:
   lr_scheduler: False
   weight_init: True
   display: True
-  device: cuda
+  device: mps
 
