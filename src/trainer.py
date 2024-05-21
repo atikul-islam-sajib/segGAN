@@ -15,6 +15,7 @@ from .discriminator import Discriminator
 
 
 class Trainer:
+
     def __init__(
         self,
         channels=3,
@@ -29,6 +30,8 @@ class Trainer:
         smooth=0.001,
         step_size=10,
         gamma=0.5,
+        clamp=0.01,
+        l1loss_value=0.1,
         lr_scheduler=False,
         is_display=True,
         is_weight_init=True,
@@ -46,6 +49,8 @@ class Trainer:
         self.smooth = smooth
         self.step_size = step_size
         self.gamma = gamma
+        self.clamp = clamp
+        self.l1loss_value = l1loss_value
         self.lr_scheduler = lr_scheduler
         self.is_display = is_display
         self.is_weight_init = is_weight_init
@@ -188,7 +193,7 @@ class Trainer:
 
         multiscale_loss = self.l1loss(real_predict, fake_predict)
 
-        lossG = 0.1 * fake_masks_loss + multiscale_loss
+        lossG = self.l1loss_value * fake_masks_loss + multiscale_loss
 
         lossG.backward()
         self.optimizerG.step()
@@ -216,7 +221,7 @@ class Trainer:
         self.optimizerD.step()
 
         for params in self.netD.parameters():
-            params.data.clamp_(-0.01, 0.01)
+            params.data.clamp_(-self.clamp, self.clamp)
 
         return lossD.item()
 

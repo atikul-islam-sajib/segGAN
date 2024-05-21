@@ -55,4 +55,6 @@ model:
   dice_smooth: 0.001
   step_size: 10
   gamma: 0.1
+  clamp_value: 0.01
+  l1loss_value: 0.1
 
