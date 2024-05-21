@@ -25,6 +25,11 @@ path:
   raw_path: ./data/raw/
   processed_path: ./data/processed/
   files_path: ./research/files/
+  train_images_path: ./outputs/train_results/
+  train_model_path: ./checkpoints/model_history/
+  best_model_path: ./checkpoints/best_model/
+  metrics_path: ./metrics/
+  test_image_path: ./outputs/test_result/
 
 
 dataloader:
@@ -32,7 +37,7 @@ dataloader:
   channels: 3
   image_size: 256
   batch_size: 1
-  split_size: 0.20
+  split_size: 0.50
 
 
 netG:

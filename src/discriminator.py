@@ -52,11 +52,12 @@ class Discriminator(nn.Module):
 
             return torch.cat(
                 (
-                    x1.view(x1.size(0), -1),
-                    x2.view(x2.size(0), -1),
-                    x3.view(x3.size(0), -1),
-                    x4.view(x4.size(0), -1),
-                    x5.view(x5.size(0), -1),
+                    1 * x.view(x.size(0), -1),
+                    1 * x1.view(x1.size(0), -1),
+                    2 * x2.view(x2.size(0), -1),
+                    2 * x3.view(x3.size(0), -1),
+                    2 * x4.view(x4.size(0), -1),
+                    4 * x5.view(x5.size(0), -1),
                 ),
                 dim=1,
             )

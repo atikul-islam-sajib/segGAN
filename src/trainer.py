@@ -1,9 +1,14 @@
+import os
 import argparse
 import torch
+import pandas as pd
+import numpy as np
+from tqdm import tqdm
 from torch.optim.lr_scheduler import StepLR
+from torchvision.utils import save_image
 
 from .helper import helpers
-from .utils import weight_init, device_init
+from .utils import weight_init, device_init, config, validate_path, dump, load
 from .generator import Generator
 from .discriminator import Discriminator
 
@@ -84,6 +89,18 @@ class Trainer:
                 optimizer=self.optimizerD, step_size=self.step_size, gamma=self.gamma
             )
 
+        self.loss = float("inf")
+        self.total_netG_loss = []
+        self.total_netD_loss = []
+        self.history = {"netG_loss": [], "netD_loss": []}
+
+        self.train_images_path = validate_path(
+            path=config()["path"]["train_images_path"]
+        )
+        self.train_model = validate_path(path=config()["path"]["train_model_path"])
+        self.best_model = validate_path(path=config()["path"]["best_model_path"])
+        self.metrics_path = validate_path(path=config()["path"]["metrics_path"])
+
     def l1_loss(self, model):
         if isinstance(model, Generator):
             return (torch.norm(params, 1) for params in model.parameters()).mean()
@@ -107,21 +124,182 @@ class Trainer:
             raise ValueError("The model is not a Generator".capitalize())
 
     def saved_model_checkpoints(self, **kwargs):
-        pass
+        torch.save(
+            self.netG.state_dict(),
+            os.path.join(self.train_model, "netG{}.pth".format(kwargs["epoch"])),
+        )
+
+        if self.loss > kwargs["netG_loss"]:
+            self.loss = kwargs["netG_loss"]
+            torch.save(
+                {
+                    "netG": self.netG.state_dict(),
+                    "netD": self.netD.state_dict(),
+                    "loss": kwargs["netG_loss"],
+                },
+                os.path.join(self.best_model, "best_model.pth"),
+            )
 
     def saved_training_images(self, **kwargs):
-        pass
+        save_image(
+            kwargs["predicted_mask"],
+            os.path.join(
+                self.train_images_path, "image{}.png".format(kwargs["epoch"] + 1)
+            ),
+            nrow=32,
+            normalize=True,
+        )
 
     def show_progress(self, **kwargs):
-        pass
+        if self.is_display:
+            print(
+                "Epochs - [{}/{}] - netG_loss: {:.4f} - netD_loss: {:.4f}".format(
+                    kwargs["epoch"],
+                    kwargs["epochs"],
+                    kwargs["netG_loss"],
+                    kwargs["netD_loss"],
+                )
+            )
+
+        else:
+            print(
+                "Epochs - [{}/{}] is completed".format(
+                    kwargs["epoch"], kwargs["epochs"]
+                )
+            )
 
     def update_train_netG(self, **kwargs):
-        pass
+        self.optimizerG.zero_grad()
+
+        images = kwargs["image"]
+        masks = kwargs["mask"]
+
+        fake_masks = self.netG(images)
+        fake_masks = torch.sigmoid(fake_masks)
+
+        fakeB = images * fake_masks
+        realA = images * masks
+
+        fake_masks_loss = self.diceloss(fake_masks, masks)
+
+        real_predict = self.netD(realA)
+        fake_predict = self.netD(fakeB.detach())
+
+        multiscale_loss = self.l1loss(real_predict, fake_predict)
+
+        lossG = 0.1 * fake_masks_loss + multiscale_loss
+
+        lossG.backward()
+        self.optimizerG.step()
+
+        return lossG.item()
 
     def update_train_netD(self, **kwargs):
-        pass
+        self.optimizerD.zero_grad()
+
+        images = kwargs["image"]
+        masks = kwargs["mask"]
+
+        fake_masks = self.netG(images)
+        fake_masks = torch.sigmoid(fake_masks)
+
+        realA = images * masks
+        fakeB = images * fake_masks
+
+        real_predict = self.netD(realA)
+        fake_predict = self.netD(fakeB.detach())
+
+        lossD = 1 - self.l1loss(real_predict, fake_predict)
+
+        lossD.backward()
+        self.optimizerD.step()
+
+        for params in self.netD.parameters():
+            params.data.clamp_(-0.01, 0.01)
+
+        return lossD.item()
 
     def train(self):
+        for epoch in tqdm(range(self.epochs)):
+            netG_loss = []
+            netD_loss = []
+
+            for index, (image, mask) in enumerate(self.train_dataloader):
+                try:
+                    image = image.to(self.device)
+                    mask = mask.to(self.device)
+
+                    netD_loss.append(self.update_train_netD(image=image, mask=mask))
+                    netG_loss.append(self.update_train_netG(image=image, mask=mask))
+
+                except Exception as e:
+                    print(
+                        f"Error during training at epoch {epoch + 1}, batch {index}: {e}"
+                    )
+                    continue
+
+            try:
+                self.show_progress(
+                    epoch=epoch + 1,
+                    epochs=self.epochs,
+                    netD_loss=np.mean(netD_loss),
+                    netG_loss=np.mean(netG_loss),
+                )
+
+                image, mask = next(iter(self.test_dataloader))
+                image = image.to(self.device)
+                predicted_mask = self.netG(image)
+
+                self.saved_training_images(
+                    image=image, mask=mask, predicted_mask=predicted_mask, epoch=epoch
+                )
+
+                self.saved_model_checkpoints(
+                    netG_loss=np.mean(netG_loss),
+                    epoch=epoch + 1,
+                )
+
+                if self.lr_scheduler:
+                    self.schedulerD.step()
+                    self.schedulerG.step()
+
+                self.total_netG_loss.append(np.mean(netG_loss))
+                self.total_netD_loss.append(np.mean(netD_loss))
+
+            except Exception as e:
+                print(f"Error during post-epoch processing at epoch {epoch + 1}: {e}")
+                continue
+
+        try:
+            self.history["netG_loss"].append(self.total_netG_loss)
+            self.history["netD_loss"].append(self.total_netD_loss)
+
+            pd.DataFrame(
+                {
+                    "netG_loss": self.total_netG_loss,
+                    "netD_loss": self.total_netD_loss,
+                }
+            ).to_csv(os.path.join(self.metrics_path, "model_history.csv"))
+
+            for filename, value in [
+                ("history.pkl", self.history),
+                ("netG_loss.pkl", self.total_netG_loss),
+                ("netD_loss.pkl", self.total_netD_loss),
+            ]:
+                dump(value=value, filename=os.path.join(self.metrics_path, filename))
+
+            print(
+                "Saved the model history in a csv file in {}\nSaved the model history in pickle format in {}".format(
+                    self.metrics_path, self.metrics_path
+                )
+            )
+
+        except Exception as e:
+            print(f"Error during post-training processing: {e}")
+            return
+
+    @staticmethod
+    def plot_history():
         pass
 
 
@@ -203,3 +381,5 @@ if __name__ == "__main__":
         is_display=args.is_display,
         is_weight_init=args.is_weight_init,
     )
+
+    trainer.train()

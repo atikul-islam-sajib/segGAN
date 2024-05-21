@@ -38,7 +38,7 @@ class DiscriminatorBlock(nn.Module):
         )
 
         if self.last_layer:
-            layers["tanh"] = nn.Tanh()
+            pass
 
         else:
             layers["leaky_ReLU"] = nn.LeakyReLU(negative_slope=0.2, inplace=True)

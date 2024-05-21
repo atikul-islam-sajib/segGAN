@@ -21,7 +21,7 @@ class DiceLoss(nn.Module):
             predicted.sum() + actual.sum() + self.smooth
         )
 
-        return 1.0 - dice
+        return 1 - dice
 
 
 if __name__ == "__main__":

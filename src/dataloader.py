@@ -243,7 +243,7 @@ if __name__ == "__main__":
             image_size=config_files["dataloader"]["image_size"],
             split_size=config_files["dataloader"]["split_size"],
         )
-        loader.unzip_folder()
+        # loader.unzip_folder()
         loader.create_dataloader()
 
         loader.plot_images()
@@ -260,7 +260,7 @@ if __name__ == "__main__":
                 split_size=args.split_size,
             )
 
-            loader.unzip_folder()
+            # loader.unzip_folder()
             loader.create_dataloader()
 
             loader.plot_images()
