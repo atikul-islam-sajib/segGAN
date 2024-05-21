@@ -18,3 +18,5 @@ tqdm==4.66.2
 Werkzeug==2.3.8
 wheel==0.41.2
 zipp==3.17.0
+
+-e .
