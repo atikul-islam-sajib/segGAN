@@ -1,4 +1,4 @@
-# seGAN Project
+# seGAN(Segmentation GAN - Image to Image translation) Project
 
 <img src="https://github.com/atikul-islam-sajib/Research-Assistant-Work-/blob/main/download%20(1).png">
 
